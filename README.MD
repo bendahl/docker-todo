@@ -142,6 +142,13 @@ frontend and backend. The downside of this is that integrating with Docker Hub i
 sole reason why there is no automated/trusted build (yet). On the other hand, you may always build your own images and modify the docker-compose.yml file to use these images
 instead (maybe a nice first exercise...).
 
+_A few points worth noting:_
+* For convenience reasons, the docker-compose configuration exposes the frontend on port 80
+* The example shows how to deal with dependencies amongst containers: The frontend defines a dependency on the backend
+* An environment variable is used to set the backend's host name within the frontend container (used for discovery)
+* The restart policy is set to "unless-stopped", which will always restart the containers, even on server reboot, 
+except if the containers were stopped intentionally using <code>docker stop</code> or <code>docker-compose stop</code>
+
 ## Credits
 Special thanks goes to Marcus Hellberg for his excellent Vaadin example that really did prove to be a great time saver when creating the frontend application. The original 
 Vaadin project is located here on Github at: https://github.com/vaadin-marcus/spring-boot-todo/
