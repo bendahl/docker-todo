@@ -4,6 +4,7 @@ services:
     image: bendahl/todo-backend:1.0 
     ports:
       - "8081:8081"
+    restart: unless-stopped
   frontend:
     depends_on:
       - backend
@@ -12,3 +13,4 @@ services:
     image: bendahl/todo-frontend:1.0
     ports:
       - "80:8080"
+    restart: unless-stopped
