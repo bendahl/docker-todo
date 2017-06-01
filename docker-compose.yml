@@ -2,8 +2,6 @@ version: "3"
 services:
   backend:
     image: bendahl/todo-backend:1.0 
-    ports:
-      - "8081:8081"
     restart: unless-stopped
   frontend:
     depends_on:
