@@ -36,7 +36,7 @@ The below tree shows the basic project file structure and gives a few hints on w
     │       │   │           └── TodoRepository.java                 // Spring JPA repository that handles data access
     │       │   └── resources                                       // non-code resources used by the backend project
     │       │       ├── application.properties                      // app settings
-    │       │       └── data.sql                                    // initial data to populate the in memory H2 DB
+    │       │       └── data.sql                                    // initial data to populate the in H2 DB
     │       └── test
     │           └── java
     │               └── de
@@ -75,9 +75,11 @@ The below tree shows the basic project file structure and gives a few hints on w
 ### The Backend
 The backend consists of a tiny REST service that is built on top of Spring Boot. 
 Swagger is integrated in the service in order to make it easy to play around with a few simple requests and get a feel for what it actually does.
-Besides Java and Spring Boot, H2 DB is used as an in-memory data store in order to keep things simple and not require an addtional database(container) to be set up.
+Besides Java and Spring Boot, H2 DB is used as a data store in order to keep things simple and not require an addtional database(container) to be set up.
 The backend listens on port 8081 and the base URL is: http://HOSTNAME_GOES_HERE:8081/todos.
 The swagger web ui is located at: http://HOSTNAME_GOES_HERE:8081/swagger-ui.html
+
+Note that the H2 DB is set up to use file storage, in order to be able to use this project to not only demonstrate networking in Docker, but also some storage basics. As long as the backend container is not removed, the data will not be lost upon container restart/stop. The default storage location of the db is the file `/tmp/todo.mv.db` within the container (see application.properties for details). This should be a sensible default in most cases. If, however, you wish to override this behavior, it's as simple as setting the environment variable `DB_FILENAME` in order to change it. The format of the filename is `<path>/<filename>`, where filename will automatically be expanded to "filename.mv.db".
 
 Building the Docker image:
 * cd into the backend directory first 
