@@ -118,7 +118,7 @@ __Useful commands__:
 
 
 ### The Frontend
-The frontend application is a basic Vaadin Todo app, largely taken from ttps://github.com/vaadin-marcus/spring-boot-todo/. 
+The frontend application is a basic Vaadin Todo app, largely taken from https://github.com/vaadin-marcus/spring-boot-todo/. 
 It also uses Java, Spring Boot and Maven as its stack. It is exposed on port 8080 by default. Simply navigate to the url
 _http://HOSTNAME_GOES_HERE:8080_ in your favorite browser to see the web ui. 
 
