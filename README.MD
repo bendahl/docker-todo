@@ -1,22 +1,27 @@
 # Cheat Sheet
-This cheat sheet is meant to provide a high level overview of the project and help you to get started with the Docker examples provided.
+This cheat sheet is meant to provide a high level overview of the project and help you to get started with the Docker 
+examples provided.
 
 ## Motivation
-This project aims to provide a simple playground for multi container Docker projects and to serve as a starting point to further examine Docker. 
+This project aims to provide a simple playground for multi container Docker projects and to serve as a starting point to 
+further examine Docker. 
 
 ## Prerequisites
-This project uses Java (8), Maven and Docker along with Docker Compose. If you're not using Maven, don't worry, simply use one of the wrapper scripts (mvnw*) in order to build
-the project. For all other dependencies you'll find links that will provide further information here:
+This project uses Java (11), Maven and Docker along with Docker Compose. If you're not using Maven, don't worry, simply 
+use one of the wrapper scripts (mvnw*) in order to build the project. For all other dependencies you'll find links that 
+will provide further information here:
 
-* Java: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+* Java: https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html
 * Docker: https://docs.docker.com/engine/installation/
 * Docker Compose: https://docs.docker.com/compose/install/
 
-__IMPORTANT__: If you're working on Linux, do not simply install Docker and Docker Compose straight from your distro's repositories, as the versions found there may be outdated. Make sure to check
-the version first. All examples were created and tested using Version 1.13 of Docker and Docker Compose. So anything >= Version 1.13 should be ok.
+__IMPORTANT__: If you're working on Linux, do not simply install Docker and Docker Compose straight from your distro's 
+repositories, as the versions found there may be outdated. Make sure to check the version first. All examples were 
+created and tested using Version 1.13 of Docker and Docker Compose. So anything >= Version 1.13 should be ok.
 
 ## Project Structure
-The below tree shows the basic project file structure and gives a few hints on what you will find where. Use this as your map. More details are explained further on in the document.
+The below tree shows the basic project file structure and gives a few hints on what you will find where. Use this as your 
+map. More details are explained further on in the document.
 
     .
     ├── backend                                                     // the backend service project root
@@ -73,83 +78,111 @@ The below tree shows the basic project file structure and gives a few hints on w
 
 
 ### The Backend
-The backend consists of a tiny REST service that is built on top of Spring Boot. 
-Swagger is integrated in the service in order to make it easy to play around with a few simple requests and get a feel for what it actually does.
-Besides Java and Spring Boot, H2 DB is used as a data store in order to keep things simple and not require an addtional database(container) to be set up.
-The backend listens on port 8081 and the base URL is: http://HOSTNAME_GOES_HERE:8081/todos.
-The swagger web ui is located at: http://HOSTNAME_GOES_HERE:8081/swagger-ui.html
+The backend consists of a REST service that is built on top of Spring Boot. OpenAPI is integrated in the service in order
+ to make it easy to play around with a few simple requests and get a feel for what it actually does. Besides Java and Spring 
+ Boot, H2 DB is used as a data store in order to keep things simple and not require an addtional database(container) to be set up.
+The backend listens on port 8081 and the base URL is: _http://HOSTNAME_GOES_HERE:8081/todos_. The swagger web ui is located 
+at: _http://HOSTNAME_GOES_HERE:8081/swagger-ui.html_. The OpenApi schema is located at: _http://localhost:8081/v3/api-docs_. 
+The health status of the backend service is exposed using the Spring Boot Actuator and exposed at 
+_http://localhost:8080/actuator/health_.
 
-Note that the H2 DB is set up to use file storage, in order to be able to use this project to not only demonstrate networking in Docker, but also some storage basics. As long as the backend container is not removed, the data will not be lost upon container restart/stop. The default storage location of the db is the file `/tmp/todo.mv.db` within the container (see application.properties for details). This should be a sensible default in most cases. If, however, you wish to override this behavior, it's as simple as setting the environment variable `DB_FILENAME` in order to change it. The format of the filename is `<path>/<filename>`, where filename will automatically be expanded to "filename.mv.db".
+Note that the H2 DB is set up to use file storage, in order to be able to use this project to not only demonstrate 
+networking in Docker, but also some storage basics. As long as the backend container is not removed, the data will not 
+be lost upon container restart/stop. The default storage location of the db is the file `/tmp/todo.mv.db` within the 
+container (see application.properties for details). This should be a sensible default in most cases. If, however, you 
+wish to override this behavior, it's as simple as setting the environment variable `DB_FILENAME` in order to change it. 
+The format of the filename is `<path>/<filename>`, where filename will automatically be expanded to "filename.mv.db".
 
 Building the Docker image:
 * cd into the backend directory first 
-* then enter the following (omitting the ":1.0" will create an image tagged as "latest")
-    docker build -t todo-backend:1.0 .
+* then enter the following (omitting the ":1.0" will create an image tagged as "latest"):
+    `docker build -t todo-backend:1.0 .`
  
-__IMPORTANT__: The docker-compose.yml will not use your local image by default, as it references "bendahl/todo-backend:1.0". You can change this, of course, and reference yours instead.
-
 Creating and running a container based on your local image:
-docker run -d --name backend -p 8081:8081 todo-backend:1.0
+`docker run -d --name backend -p 8081:8081 todo-backend:1.0`
 
-This will essentially create and immediately start a new container named "backend" based on your local image created above. You can now connect to it on the exposed port 8081. 
+This will essentially create and immediately start a new container named "backend" based on your local image created above. 
+You can now connect to it on the exposed port 8081. 
 
-Use <code> docker ps </code> to see all running containers  
+__Useful commands__:
 
-<code>docker stop backend</code> will stop the container
+- `docker ps`: See a list of all running containers  
+
+- `docker stop [CONTAINER]`: Stop a container
  
-Use <code>docker ps -a </code> to see all containers (including the ones that are not running)
+- `docker ps -a`: See a list of all containers (running or not) and their status
  
-<code>docker rm backend</code> will delete the container
+- `docker rm [CONTAINER]`: Delete a container
+
+- `docker rmi [IMAGE:TAG]`: Delete an image
 
 
 ### The Frontend
-The frontend application is a simple Vaadin Todo app, largely taken from ttps://github.com/vaadin-marcus/spring-boot-todo/. It also uses Java, Spring Boot and Maven as 
-its stack. In order to find the backend reliably and elegantly without requiring things like service discovery or hard wiring everything, it will rely on DNS and uses an 
-environment variable in the application.properties to extract the hostname of the backend. This is very important, since the hostname defined by this environment variable 
-needs to match the name given to the backend service within the docker-compose.yml file. The reason for this is simply that docker-compose will assign that name to the backend
-container as its hostname and ensure that all containers on the default network will be able to resolve it via DNS. The frontend listens on port 8080. Go to 
-http://HOSTNAME_GOES_HERE:8080 to see the web ui.
+The frontend application is a basic Vaadin Todo app, largely taken from ttps://github.com/vaadin-marcus/spring-boot-todo/. 
+It also uses Java, Spring Boot and Maven as its stack. It is exposed on port 8080 by default. Simply navigate to the url
+_http://HOSTNAME_GOES_HERE:8080_ in your favorite browser to see the web ui. 
 
-Building the Docker image:
-* cd into the frontend directory first 
-* then enter the following (omitting the ":1.0" will create an image tagged as "latest")
-    docker build -t todo-frontend:1.0 .
+In order to successfully run the frontend, make sure that the backend is up and running and listening for connections
+on port 8081 (default setting of the backend). You will also need to specify the environment variable _BACKEND_HOSTNAME_, 
+since the frontend uses this variable to retrieve the actual host name of the backend application.
  
-__IMPORTANT__: The docker-compose.yml will not use your local image by default, as it references "bendahl/todo-frontend:1.0". You can change this, of course, and reference yours instead.
+Additional information:
+When using Docker, a container's host name usually matches its name. Therefore, if you started the backend container like
+described above, its host name will be "backend". Also note that the two containers will have to be on the same bridge 
+network or, alternatively, use the host network (not recommended) in order to communicate with each other. All in all this
+can be achieved in three easy steps, described in the following section.
 
-Creating and running a container based on your local image:
-docker run -d --name frontend -p 8080:8080 --link backend todo-frontend:1.0
+__Running frontend and backend (not using docker-compose)__:
 
-This will essentially create and immediately start a new container named "frontend" based on your local image created above and link the backend container to it. You can now connect to it on port 8080. 
+- Create a bridge network (called 'matrix' in this example): `docker network create matrix`
+- Run the backend container: `docker run -d --name backend --network matrix todo-backend:1.0 backend/.`
+- Run the frontend container: `docker run -d --name frontend --network matrix -p 80:8080 -e BACKEND_HOSTNAME=backend todo-frontend:1.0 frontend/.`
 
-Use <code> docker ps </code> to see all running containers.  
+This will essentially create a new bridge network called 'matrix' and connect two containers (frontend and backend) to it.
+Since both containers are on the same bridge network, they will be able to reach each other over tcp. Therefore there is 
+no need to expose any port for the backend. The frontend, on the other hand, will need to be reachable from the host network, 
+so you can navigate to the web ui using your browser. That's the reason for the '-p 80:8080' in the frontend call above.
+Also, don't forget to set the environment variable _BACKEND_HOSTNAME_ when running the frontend. Otherwise the service 
+will fail to startup, since it doesn't know the backend's host name.  
 
-<code>docker stop backend</code> will stop the container
+__Useful commands__:
+
+- `docker ps`: See a list of all running containers  
+
+- `docker stop [CONTAINER]`: Stop a container
  
-Use <code>docker ps -a </code> to see all containers (including the ones that are not running).
+- `docker ps -a`: See a list of all containers (running or not) and their status
  
-<code>docker rm backend</code> will delete the container
+- `docker rm [CONTAINER]`: Delete a container
 
+- `docker rmi [IMAGE:TAG]`: Delete an image
 
-__IMPORTANT__: The frontend only works correctly if a backend service is available. Therefore, you should start the backend first. Also, note that container linking is 
-officially deprecated and may be dropped in future versions (see: https://docs.docker.com/engine/userguide/networking/default_network/dockerlinks/). It is used here as an easy
-means to quickly link up two containers. Instead, you may also use a custom network setup, as described in the Docker documentation as well. The best way
-to accomplish this is probably through the use of Docker Compose, which is a) very easy to setup and b) offers some advanced features (see: https://docs.docker.com/compose/overview/#features).
+- `docker network create [NETWORK]`: Create a new network
+
+- `docker network ls`: List existing networks
+
+- `docker network rm [NETWORK]`: Delete existing network
 
 
 ### Docker Compose File
-If you would like to try the Docker Compose example, you do not even need to build the two sub projects, as the script simply uses my personal Docker Hub account to pull
-the needed images. The images are built based on the two sources here on Github. In order to keep things simple for people wanting to use this repository, it contains the whole app,
-frontend and backend. The downside of this is that integrating with Docker Hub is not as nice, since it is usually a 1 to 1 mapping of a Github to Docker Hub repository. This is the
-sole reason why there is no automated/trusted build (yet). On the other hand, you may always build your own images and modify the docker-compose.yml file to use these images
-instead (maybe a nice first exercise...).
+If you wold like to run the full example (front- and backend) without going through the hassle of creating your own network
+and manually running the containers, you may also use docker-compose to automate the whole process, including the creation
+of the two images. Note, however, that you will need to successfully build the two jar files (frontend and backend) first 
+in order to build the images. 
 
-_A few points worth noting:_
-* For convenience reasons, the docker-compose configuration exposes the frontend on port 80
-* The example shows how to deal with dependencies amongst containers: The frontend defines a dependency on the backend
-* An environment variable is used to set the backend's host name within the frontend container (used for discovery)
-* The restart policy is set to "unless-stopped", which will always restart the containers, even on server reboot, 
-except if the containers were stopped intentionally using <code>docker stop</code> or <code>docker-compose stop</code>
+__Running the examples via docker-compose__:
+
+- Build the backend: `cd backend && mvn clean install && cd ..`
+- Build the frontend: `cd frontend && mvn clean install && cd ..`
+- Now run the example using docker-compose: `docker-compose up -d` (the -d ensures that the processes run in the background)
+- Open up http://localhost in your favorite browser to see the result  
+
+__Useful commands__:
+- `docker-compose up`: Run containers according to the docker-compose.yml. Stdout will be forwarded.
+- `docker-compose up -d`: Run containers according to the docker-compose.yml. Processes will be run in the background.
+- `docker-compose ps`: View running containers and their status.
+- `docker-compose stop`: Stop the running containers.
+- `docker-compose down`: Stop and delete the running containers and the newly created network.
 
 ## Credits
 Special thanks goes to Marcus Hellberg for his excellent Vaadin example that really did prove to be a great time saver when creating the frontend application. The original 
