@@ -39,7 +39,7 @@ public class TodoEndpoint {
     @ApiOperation("Get a specific todo identified by it's id")
     @RequestMapping(path = "/todo/{id}", method = GET)
     public Todo findOne(@PathVariable long id) {
-        return repository.findOne(id);
+        return repository.getOne(id);
     }
 
     @ApiOperation("Create a new todo. Note that the id will be auto generated.")
@@ -51,7 +51,7 @@ public class TodoEndpoint {
     @ApiOperation("Modify an existing todo.")
     @RequestMapping(path = "/todo/{id}", method = PUT)
     public ResponseEntity<Todo> updateTodo(@PathVariable long id, @RequestBody Todo todo) {
-        Todo result = repository.findOne(id);
+        Todo result = repository.getOne(id);
         if (result == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -63,7 +63,7 @@ public class TodoEndpoint {
     @ApiOperation("Delete the todo with the given id.")
     @RequestMapping(path = "/todo/{id}", method = DELETE)
     public void deleteTodo(@PathVariable long id) {
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
     @ApiOperation("Delete all todos with the given done status")
