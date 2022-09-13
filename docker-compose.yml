@@ -1,14 +1,14 @@
 version: "3"
 services:
   backend:
-    build: backend/. 
+    image: bendahl/todo-backend:2.0
     restart: unless-stopped
   frontend:
     depends_on:
       - backend
     environment:
       - BACKEND_HOSTNAME=backend
-    build: frontend/.
+    image: bendahl/todo-frontend:2.0
     ports:
       - "80:8080"
     restart: unless-stopped

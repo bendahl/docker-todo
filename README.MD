@@ -7,13 +7,16 @@ This project aims to provide a simple playground for multi container Docker proj
 further examine Docker. 
 
 ## Prerequisites
-This project uses Java (11), Maven and Docker along with Docker Compose. If you're not using Maven, don't worry, simply 
+This project uses Java (11), Maven and Docker along with Docker Compose. 
+You will only need to install Java on your system if you're planning on building the applications without using Docker (for local development, etc...).
+Otherwise, the provided Dockerfiles will take care of this, by using [multistage builds](https://docs.docker.com/develop/develop-images/multistage-build/).
+If you're not using Maven, don't worry, simply 
 use one of the wrapper scripts (mvnw*) in order to build the project. For all other dependencies you'll find links that 
 will provide further information here:
 
-* Java: https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html
 * Docker: https://docs.docker.com/engine/installation/
 * Docker Compose: https://docs.docker.com/compose/install/
+* Java [optional]: https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html
 
 __IMPORTANT__: If you're working on Linux, do not simply install Docker and Docker Compose straight from your distro's 
 repositories, as the versions found there may be outdated. Make sure to check the version first. All examples were 
@@ -176,6 +179,8 @@ __Running the examples via docker-compose__:
 - Build the frontend: `cd frontend && mvn clean install && cd ..`
 - Now run the example using docker-compose: `docker-compose up -d` (the -d ensures that the processes run in the background)
 - Open up http://localhost in your favorite browser to see the result  
+
+**NOTE THAT THIS WILL FAIL WHEN USING ROOTLESS DOCKER, SINCE PORT 80 IS A PRIVILEGED PORT. EITHER USE ANOTHER PORT IN THE COMPOSE FILE OR USE DOCKER WITH ROOT.**
 
 __Useful commands__:
 - `docker-compose up`: Run containers according to the docker-compose.yml. Stdout will be forwarded.
